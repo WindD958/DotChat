@@ -1,11 +1,10 @@
-import React from "react";
-import { GalleryVerticalEnd } from "lucide-react";
 import { SignupForm } from "@/components/signup-form";
+import React from "react";
 
 const SignUpPage = () => {
     return (
-        <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
-            <div className="flex w-full max-w-2xl flex-col gap-6">
+        <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
+            <div className="w-full max-w-sm md:max-w-4xl">
                 <SignupForm />
             </div>
         </div>

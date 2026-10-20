@@ -1,56 +1,31 @@
 import { cn } from "cn";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "./ui/label";
-
-const signUpSchema = z.object({
-    firstname: z.string().min(1, "Tên bắt buộc phải có"),
-    lastname: z.string().min(1, "Họ bắt buộc phải có"),
-    username: z.string().min(3, "Tên đăng nhập phải có ít nhất 3 ký tự"),
-    email: z.email("Email không hợp lệ"),
-    password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
-});
-
-type SignUpFormValues = z.infer<typeof signUpSchema>;
+import { z } from "zod";
 
 export function SignupForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-    } = useForm<SignUpFormValues>({
-        resolver: zodResolver(signUpSchema),
-    });
-
-    const onSubmit = async (data: SignUpFormValues) => {
-        console.log(data);
-    };
-
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card className="overflow-hidden p-0">
-                <CardContent className="grid p-0 md:grid-cols-2 border-border">
-                    <div className="relative hidden bg-white md:block brightness-96">
+                <CardContent className="grid p-0 md:grid-cols-2">
+                    <div className="relative hidden bg-white md:block brightness-95">
                         <img
                             src="/placeholderSignUp.jpg"
                             alt="Image"
                             className="absolute top-1/2 -translate-y-1/2 object-cover"
                         />
                     </div>
-                    <form
-                        className="p-6 md:p-8"
-                        onSubmit={handleSubmit(onSubmit)}
-                    >
+
+                    {/*  */}
+                    <form className="p-6 md:p-8">
                         <div className="flex flex-col gap-6">
-                            {/* Header và logo */}
+                            {/* header - logo */}
                             <div className="flex flex-col items-center text-center gap-2">
                                 <a
                                     href="/"
@@ -58,15 +33,16 @@ export function SignupForm({
                                 >
                                     <img src="/logo.svg" alt="logo" />
                                 </a>
+
                                 <h1 className="text-2xl font-bold">
                                     Tạo tài khoản DotChat
                                 </h1>
                                 <p className="text-muted-foreground text-balance">
-                                    Chào mừng bạn! Hãy đăng ký để bắt đâu.
+                                    Chào mừng bạn! Hãy đăng ký để bắt đầu!
                                 </p>
                             </div>
 
-                            {/* Họ và tên */}
+                            {/* họ & tên */}
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-2">
                                     <Label
@@ -75,17 +51,7 @@ export function SignupForm({
                                     >
                                         Họ
                                     </Label>
-                                    <Input
-                                        type="text"
-                                        id="lastname"
-                                        {...register("lastname")}
-                                    />
-
-                                    {errors.lastname && (
-                                        <p className="text-destructive text-sm">
-                                            {errors.lastname.message}
-                                        </p>
-                                    )}
+                                    <Input type="text" id="lastname" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label
@@ -94,16 +60,7 @@ export function SignupForm({
                                     >
                                         Tên
                                     </Label>
-                                    <Input
-                                        type="text"
-                                        id="firstname"
-                                        {...register("firstname")}
-                                    />
-                                    {errors.firstname && (
-                                        <p className="text-destructive text-sm">
-                                            {errors.firstname.message}
-                                        </p>
-                                    )}
+                                    <Input type="text" id="firstname" />
                                 </div>
                             </div>
 
@@ -118,14 +75,8 @@ export function SignupForm({
                                 <Input
                                     type="text"
                                     id="username"
-                                    placeholder="moji"
-                                    {...register("username")}
+                                    placeholder="dotchat"
                                 />
-                                {errors.username && (
-                                    <p className="text-destructive text-sm">
-                                        {errors.username.message}
-                                    </p>
-                                )}
                             </div>
 
                             {/* email */}
@@ -139,14 +90,8 @@ export function SignupForm({
                                 <Input
                                     type="email"
                                     id="email"
-                                    placeholder="m@gmail.com"
-                                    {...register("email")}
+                                    placeholder="dotchat@example.com"
                                 />
-                                {errors.email && (
-                                    <p className="text-destructive text-sm">
-                                        {errors.email.message}
-                                    </p>
-                                )}
                             </div>
 
                             {/* password */}
@@ -157,29 +102,16 @@ export function SignupForm({
                                 >
                                     Mật khẩu
                                 </Label>
-                                <Input
-                                    type="password"
-                                    id="password"
-                                    {...register("password")}
-                                />
-                                {errors.password && (
-                                    <p className="text-destructive text-sm">
-                                        {errors.password.message}
-                                    </p>
-                                )}
+                                <Input type="password" id="password" />
                             </div>
 
                             {/* nút đăng ký */}
-                            <Button
-                                type="submit"
-                                className="w-full"
-                                disabled={isSubmitting}
-                            >
+                            <Button type="submit" className="w-full">
                                 Tạo tài khoản
                             </Button>
 
                             <div className="text-center text-sm">
-                                Bạn đã có tài khoản?{" "}
+                                Đã có tài khoản?{" "}
                                 <a
                                     href="/signin"
                                     className="underline underline-offset-4"
@@ -191,7 +123,7 @@ export function SignupForm({
                     </form>
                 </CardContent>
             </Card>
-            <div className="text-xs text-balance px-6 text-center *:[a]:hover:text-primary text-muted-foreground *:[a]:underline *:[a]:underline-offset-4">
+            <div className=" text-xs text-balance px-6 text-center *:[a]:hover:text-primary text-muted-foreground *:[a]:underline *:[a]:underline-offetset-4">
                 Bằng cách tiếp tục, bạn đồng ý với{" "}
                 <a href="#">Điều khoản dịch vụ</a> và{" "}
                 <a href="#">Chính sách bảo mật</a> của chúng tôi.

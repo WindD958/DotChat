@@ -8,6 +8,10 @@
         "allowArbitraryExtensions": true,
         "skipLibCheck": true,
         "ignoreDeprecations": "6.0",
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./src/*"]
+        },
 
         /* Bundler mode */
         "moduleResolution": "bundler",
@@ -21,13 +25,7 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "erasableSyntaxOnly": true,
-        "noFallthroughCasesInSwitch": true,
-
-        // Shadcn
-        "baseUrl": ".",
-        "paths": {
-            "@/*": ["./src/*"]
-        }
+        "noFallthroughCasesInSwitch": true
     },
     "include": ["src"]
 }
