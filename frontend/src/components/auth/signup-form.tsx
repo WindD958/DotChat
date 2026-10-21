@@ -1,15 +1,46 @@
 import { cn } from "cn";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "./ui/label";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Label } from "../ui/label";
 import { z } from "zod";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useNavigate } from "react-router";
+
+const signUpSchema = z.object({
+    firstname: z.string().min(1, "Tên bắt buộc phải có"),
+    lastname: z.string().min(1, "Họ bắt buộc phải có"),
+    username: z.string().min(3, "Tên đăng nhập phải có ít nhất 3 ký tự"),
+    email: z.email("Email không hợp lệ"),
+    password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
+});
+
+type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 export function SignupForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
+    const { signUp } = useAuthStore();
+    const navigate = useNavigate();
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm<SignUpFormValues>({
+        resolver: zodResolver(signUpSchema),
+    });
+
+    const onSubmit = async (data: SignUpFormValues) => {
+        const { firstname, lastname, username, email, password } = data;
+
+        await signUp(username, password, email, firstname, lastname);
+
+        navigate("/signin");
+    };
+
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card className="overflow-hidden p-0">
@@ -23,7 +54,10 @@ export function SignupForm({
                     </div>
 
                     {/*  */}
-                    <form className="p-6 md:p-8">
+                    <form
+                        className="p-6 md:p-8"
+                        onSubmit={handleSubmit(onSubmit)}
+                    >
                         <div className="flex flex-col gap-6">
                             {/* header - logo */}
                             <div className="flex flex-col items-center text-center gap-2">
@@ -51,7 +85,17 @@ export function SignupForm({
                                     >
                                         Họ
                                     </Label>
-                                    <Input type="text" id="lastname" />
+                                    <Input
+                                        type="text"
+                                        id="lastname"
+                                        {...register("lastname")}
+                                    />
+
+                                    {errors.lastname && (
+                                        <p className="text-destructive text-sm">
+                                            {errors.lastname.message}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label
@@ -60,7 +104,16 @@ export function SignupForm({
                                     >
                                         Tên
                                     </Label>
-                                    <Input type="text" id="firstname" />
+                                    <Input
+                                        type="text"
+                                        id="firstname"
+                                        {...register("firstname")}
+                                    />
+                                    {errors.firstname && (
+                                        <p className="text-destructive text-sm">
+                                            {errors.firstname.message}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 
@@ -76,7 +129,13 @@ export function SignupForm({
                                     type="text"
                                     id="username"
                                     placeholder="dotchat"
+                                    {...register("username")}
                                 />
+                                {errors.username && (
+                                    <p className="text-destructive text-sm">
+                                        {errors.username.message}
+                                    </p>
+                                )}
                             </div>
 
                             {/* email */}
@@ -91,7 +150,14 @@ export function SignupForm({
                                     type="email"
                                     id="email"
                                     placeholder="dotchat@example.com"
+                                    {...register("email")}
                                 />
+
+                                {errors.email && (
+                                    <p className="text-destructive text-sm">
+                                        {errors.email.message}
+                                    </p>
+                                )}
                             </div>
 
                             {/* password */}
@@ -102,11 +168,24 @@ export function SignupForm({
                                 >
                                     Mật khẩu
                                 </Label>
-                                <Input type="password" id="password" />
+                                <Input
+                                    type="password"
+                                    id="password"
+                                    {...register("password")}
+                                />
+                                {errors.password && (
+                                    <p className="text-destructive text-sm">
+                                        {errors.password.message}
+                                    </p>
+                                )}
                             </div>
 
                             {/* nút đăng ký */}
-                            <Button type="submit" className="w-full">
+                            <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={isSubmitting}
+                            >
                                 Tạo tài khoản
                             </Button>
 
