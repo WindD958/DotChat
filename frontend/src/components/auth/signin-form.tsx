@@ -72,7 +72,10 @@ export function SigninForm({
                             </div>
 
                             {/* username */}
-                            <div className="flex flex-col gap-3">
+                            <div
+                                className="flex flex-col gap-1.5
+                            "
+                            >
                                 <Label
                                     htmlFor="username"
                                     className="block text-sm"
@@ -93,7 +96,7 @@ export function SigninForm({
                             </div>
 
                             {/* password */}
-                            <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-1.5">
                                 <Label
                                     htmlFor="password"
                                     className="block text-sm"
@@ -117,6 +120,7 @@ export function SigninForm({
                                 type="submit"
                                 className="w-full"
                                 disabled={isSubmitting}
+                                size="sm"
                             >
                                 Đăng nhập
                             </Button>
@@ -124,8 +128,8 @@ export function SigninForm({
                             <div className="text-center text-sm">
                                 Chưa có tài khoản?{" "}
                                 <a
-                                    href="/signin"
-                                    className="underline underline-offset-4"
+                                    href="/signup"
+                                    className="underline underline-offset-2"
                                 >
                                     Đăng ký
                                 </a>

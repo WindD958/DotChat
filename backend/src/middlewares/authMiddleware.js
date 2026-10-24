@@ -21,11 +21,9 @@ export const protectedRoute = (req, res, next) => {
                 if (err) {
                     console.error(err);
 
-                    return res
-                        .status(403)
-                        .json({
-                            message: "Access token hết hạn hoặc không đúng.",
-                        });
+                    return res.status(403).json({
+                        message: "Access token hết hạn hoặc không đúng.",
+                    });
                 }
 
                 // Tìm user

@@ -92,7 +92,7 @@ export function SignupForm({
                                     />
 
                                     {errors.lastname && (
-                                        <p className="text-destructive text-sm">
+                                        <p className="text-destructive text-sx">
                                             {errors.lastname.message}
                                         </p>
                                     )}
@@ -110,7 +110,7 @@ export function SignupForm({
                                         {...register("firstname")}
                                     />
                                     {errors.firstname && (
-                                        <p className="text-destructive text-sm">
+                                        <p className="text-destructive text-sx">
                                             {errors.firstname.message}
                                         </p>
                                     )}
@@ -118,7 +118,7 @@ export function SignupForm({
                             </div>
 
                             {/* username */}
-                            <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-1.5">
                                 <Label
                                     htmlFor="username"
                                     className="block text-sm"
@@ -132,14 +132,14 @@ export function SignupForm({
                                     {...register("username")}
                                 />
                                 {errors.username && (
-                                    <p className="text-destructive text-sm">
+                                    <p className="text-destructive text-sx">
                                         {errors.username.message}
                                     </p>
                                 )}
                             </div>
 
                             {/* email */}
-                            <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-1.5">
                                 <Label
                                     htmlFor="email"
                                     className="block text-sm"
@@ -154,14 +154,14 @@ export function SignupForm({
                                 />
 
                                 {errors.email && (
-                                    <p className="text-destructive text-sm">
+                                    <p className="text-destructive text-sx">
                                         {errors.email.message}
                                     </p>
                                 )}
                             </div>
 
                             {/* password */}
-                            <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-1.5">
                                 <Label
                                     htmlFor="password"
                                     className="block text-sm"
@@ -172,9 +172,10 @@ export function SignupForm({
                                     type="password"
                                     id="password"
                                     {...register("password")}
+                                    className="mb-1"
                                 />
                                 {errors.password && (
-                                    <p className="text-destructive text-sm">
+                                    <p className="text-destructive text-sx">
                                         {errors.password.message}
                                     </p>
                                 )}
@@ -185,6 +186,7 @@ export function SignupForm({
                                 type="submit"
                                 className="w-full"
                                 disabled={isSubmitting}
+                                size="sm"
                             >
                                 Tạo tài khoản
                             </Button>
@@ -193,7 +195,7 @@ export function SignupForm({
                                 Đã có tài khoản?{" "}
                                 <a
                                     href="/signin"
-                                    className="underline underline-offset-4"
+                                    className="underline underline-offset-2"
                                 >
                                     Đăng nhập
                                 </a>
