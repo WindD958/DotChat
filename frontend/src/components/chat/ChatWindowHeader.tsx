@@ -7,8 +7,15 @@ import UserAvatar from "./UserAvatar";
 import StatusBadge from "./StatusBadge";
 import GroupChatAvatar from "./GroupChatAvatar";
 import { useSocketStore } from "@/stores/useSocketStore";
+import { Menu } from "lucide-react";
+import { Button } from "../ui/button";
 
-const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
+interface Props {
+    chat: Conversation;
+    onToggle: () => void;
+}
+
+const ChatWindowHeader = ({ chat, onToggle }: Props) => {
     const { conversations, activeConversationId } = useChatStore();
     const { user } = useAuthStore();
     const { onlineUsers } = useSocketStore();
@@ -25,7 +32,9 @@ const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
     }
 
     if (chat.type === "direct") {
-        const otherUsers = chat.participants.filter((p) => p._id !== user?._id);
+        const otherUsers = chat.participants.filter(
+            (p) => p.userId !== user?._id,
+        );
         otherUser = otherUsers.length > 0 ? otherUsers[0] : null;
 
         if (!user || !otherUser) return;
@@ -34,7 +43,10 @@ const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
     return (
         <header className="sticky top-0 z-10 px-4 py-2 flex items-center bg-background">
             <div className="flex items-center gap-2 w-full">
-                <SidebarTrigger size={"lg"} className="ml-1 text-foreground" />
+                <SidebarTrigger
+                    size={"lg"}
+                    className="cursor-pointer ml-1 text-foreground"
+                />
                 <Separator
                     orientation="vertical"
                     className="mr-2 w-0.5 data-[orientation=vertical]:h-4"
@@ -54,7 +66,7 @@ const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
                                 <StatusBadge
                                     status={
                                         onlineUsers.includes(
-                                            otherUser?._id ?? "",
+                                            otherUser?.userId ?? "",
                                         )
                                             ? "online"
                                             : "offline"
@@ -76,6 +88,14 @@ const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
                     </h2>
                 </div>
             </div>
+
+            <Button
+                onClick={onToggle}
+                variant="ghost"
+                className="cursor-pointer"
+            >
+                <Menu className="size-4" />
+            </Button>
         </header>
     );
 };

@@ -34,15 +34,15 @@
         --muted-foreground: 240 15% 50%;
 
         /* Accent - cyan */
-        --accent: 180 100% 75%;
+        --accent: 0 0 92%;
         --accent-foreground: 240 100% 15%;
 
         /* Chat colors */
         --chat-bubble-sent: 270 72% 76%;
-        --chat-bubble-sent-border: 270 72% 65%;
+        --chat-bubble-sent-border: 270 72% 70%;
         --chat-bubble-sent-foreground: 0 0% 20%;
         --chat-bubble-received: 0 0% 96%;
-        --chat-bubble-received-border: 0 0% 87%;
+        --chat-bubble-received-border: 0 0% 90%;
         --chat-bubble-received-foreground: 0 0% 20%;
 
         /* Status colors */
@@ -147,8 +147,8 @@
         --muted: 240 15% 15%;
         --muted-foreground: 240 15% 70%;
 
-        --accent: 180 100% 60%;
-        --accent-foreground: 240 15% 8%;
+        --accent: 0 0 5%;
+        --accent-foreground: 250 100% 95%;
 
         /* Chat bubbles in dark mode */
         --chat-bubble-sent: 270 72% 65%;
@@ -220,6 +220,22 @@
 
 /* Chat App Utility Classes */
 @layer components {
+    .nd-sidebar-nav {
+        @apply bg-gray-200!;
+    }
+
+    .nd-sidebar-content {
+        @apply bg-gray-100!;
+    }
+
+    .dark .nd-sidebar-nav {
+        background-color: #0f0f0f !important;
+    }
+
+    .dark .nd-sidebar-content {
+        background-color: #1a1a1a !important;
+    }
+
     .glass {
         @apply bg-gradient-to-br from-violet-200/10 to-pink-100/5 border-violet-300/30;
     }

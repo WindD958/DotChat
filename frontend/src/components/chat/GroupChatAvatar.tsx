@@ -31,7 +31,7 @@ const GroupChatAvatar = ({ participants, type }: GroupChatAvatarProps) => {
             {participants.length > limit && (
                 <div
                     className={cn(
-                        "flex items-center z-10 justify-center size-8 bg-muted ring-2 ring-background rounded-md text-muted",
+                        "flex items-center z-10 justify-center size-8 bg-muted ring-2 ring-background rounded-sm text-muted",
                         type === "chat" && "size-10",
                     )}
                 >

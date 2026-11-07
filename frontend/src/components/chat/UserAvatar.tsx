@@ -22,12 +22,12 @@ const UserAvatar = ({ type, name, avatarUrl, className }: IUserAvatarProps) => {
                 type === "sidebar" && "size-12 text-base ",
                 type === "mess" && "size-8 text-base ",
                 type === "chat" && "size-10 text-sm",
-                type === "profile" && "size-8 text-3xl shadow-md",
+                type === "profile" && "size-20 text-3xl shadow-md",
             )}
         >
-            <AvatarImage src={avatarUrl} alt={name} />
+            <AvatarImage className="rounded-sm" src={avatarUrl} alt={name} />
             <AvatarFallback
-                className={`${bgColor} text-white font-semibold rounded-md ring-2 ring-background`}
+                className={`${bgColor} text-white font-semibold rounded-sm ring-2 ring-background`}
             >
                 {name.charAt(0)}
             </AvatarFallback>

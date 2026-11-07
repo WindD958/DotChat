@@ -1,26 +1,44 @@
 import Friend from "../models/Friend.js";
 import FriendRequest from "../models/FriendRequest.js";
 import User from "../models/User.js";
+import mongoose from "mongoose";
 
 export const sendFriendRequest = async (req, res) => {
     try {
         const { to, message } = req.body;
         const from = req.user._id;
 
-        if (from === to) {
+        // 1. Kiểm tra dữ liệu đầu vào
+        if (!to) {
+            return res.status(400).json({
+                message: "Thiếu ID người nhận",
+            });
+        }
+
+        // 2. Kiểm tra ID hợp lệ
+        if (!mongoose.Types.ObjectId.isValid(to)) {
+            return res.status(400).json({
+                message: "ID người nhận không hợp lệ",
+            });
+        }
+
+        // 3. Kiểm tra tự gửi lời mời
+        if (from.toString() === to.toString()) {
             return res.status(400).json({
                 message: "Không thể gửi lời mời kết bạn cho chính mình",
             });
         }
 
+        // 4. Kiểm tra người nhận tồn tại
         const userExists = await User.exists({ _id: to });
 
         if (!userExists) {
-            return res
-                .status(404)
-                .json({ message: "Người dùng không tồn tại" });
+            return res.status(404).json({
+                message: "Người dùng không tồn tại",
+            });
         }
 
+        // 5. Chuẩn hóa ID
         let userA = from.toString();
         let userB = to.toString();
 
@@ -28,8 +46,10 @@ export const sendFriendRequest = async (req, res) => {
             [userA, userB] = [userB, userA];
         }
 
+        // 6. Kiểm tra quan hệ bạn bè và lời mời
         const [alreadyFriends, existingRequest] = await Promise.all([
             Friend.findOne({ userA, userB }),
+
             FriendRequest.findOne({
                 $or: [
                     { from, to },
@@ -39,24 +59,28 @@ export const sendFriendRequest = async (req, res) => {
         ]);
 
         if (alreadyFriends) {
-            return res.status(400).json({ message: "Hai người đã là bạn bè" });
+            return res.status(400).json({
+                message: "Hai người đã là bạn bè",
+            });
         }
 
         if (existingRequest) {
-            return res
-                .status(400)
-                .json({ message: "Đã có lời mời kết bạn đang chờ" });
+            return res.status(400).json({
+                message: "Đã có lời mời kết bạn đang chờ",
+            });
         }
 
+        // 7. Tạo lời mời
         const request = await FriendRequest.create({
             from,
             to,
             message,
         });
 
-        return res
-            .status(201)
-            .json({ message: "Gửi lời mời kết bạn thành công", request });
+        return res.status(201).json({
+            message: "Gửi lời mời kết bạn thành công",
+            request,
+        });
     } catch (error) {
         console.error("Lỗi khi gửi yêu cầu kết bạn", error);
         return res.status(500).json({ message: "Lỗi hệ thống" });
@@ -67,6 +91,8 @@ export const acceptFriendRequest = async (req, res) => {
     try {
         const { requestId } = req.params;
         const userId = req.user._id;
+
+        console.error(requestId, userId);
 
         const request = await FriendRequest.findById(requestId);
 
@@ -92,6 +118,8 @@ export const acceptFriendRequest = async (req, res) => {
         const from = await User.findById(request.from)
             .select("_id displayName avatarUrl")
             .lean();
+
+        console.log(from);
 
         return res.status(200).json({
             message: "Chấp nhận lời mời kết bạn thành công",
@@ -142,8 +170,8 @@ export const getAllFriend = async (req, res) => {
         const friendships = await Friend.find({
             $or: [{ userA: userId }, { userB: userId }],
         })
-            .populate("userA", "_id displayName avatarUrl")
-            .populate("userB", "_id displayName avatarUrl");
+            .populate("userA", "_id displayName username avatarUrl")
+            .populate("userB", "_id displayName username avatarUrl");
 
         if (!friendships.length) {
             return res.status(200).json({ friends: [] });

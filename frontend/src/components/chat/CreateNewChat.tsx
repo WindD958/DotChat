@@ -1,7 +1,22 @@
-import React from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import FriendListModal from "../createNewChat/FriendListModal";
 
-const CreateNewChat = () => {
-    return <div>CreateNewChat</div>;
+type Props = {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+};
+
+const CreateNewChat = ({ open, onOpenChange }: Props) => {
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[425px] border-none">
+                <DialogHeader>
+                    <DialogTitle>Trò chuyện mới</DialogTitle>
+                </DialogHeader>
+                <FriendListModal />
+            </DialogContent>
+        </Dialog>
+    );
 };
 
 export default CreateNewChat;

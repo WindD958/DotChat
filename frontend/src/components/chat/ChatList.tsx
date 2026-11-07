@@ -1,10 +1,5 @@
-import { SidebarHeader, SidebarInput } from "../ui/sidebar";
-import { Plus } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { MessageCirclePlus, Plus, UserPlus, Users } from "lucide-react";
 import { Button } from "../ui/button";
-import CreateNewChat from "./CreateNewChat";
-import AddFriendModal from "./AddFriendModal";
-import NewGroupChatModal from "./NewGroupChatModal";
 import { useChatStore } from "@/stores/useChatStore";
 import MessageCard from "./MessageCard";
 import {
@@ -15,21 +10,36 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { useFriendStore } from "@/stores/useFriendStore";
+import { Input } from "../ui/input";
 
-const ChatList = () => {
+type DialogType = "createchat" | "addfriend" | "newgroup" | null;
+
+interface Props {
+    onOpenDialog: (type: DialogType) => void;
+}
+
+const ChatList = ({ onOpenDialog }: Props) => {
     const { conversations } = useChatStore();
 
     if (!conversations) return;
 
+    const { getFriends } = useFriendStore();
+
+    const handleGetFriends = async () => {
+        await getFriends();
+    };
+
     return (
         <div>
-            <SidebarHeader className="gap-3.5 border-b p-4 border-sidebar-border">
+            <div className="gap-3.5 border-b p-4 border-sidebar-border">
                 <div className="flex gap-2">
-                    <SidebarInput placeholder="Tìm kiếm..." />
+                    <Input placeholder="Tìm kiếm cuộc trò chuyện..." />
 
                     <DropdownMenu>
                         <DropdownMenuTrigger
-                            render={<Button variant="outline" size="lg" />}
+                            className="cursor-pointer"
+                            render={<Button variant="outline" size="icon" />}
                         >
                             <Plus />
                         </DropdownMenuTrigger>
@@ -40,28 +50,49 @@ const ChatList = () => {
                             sideOffset={4}
                         >
                             <DropdownMenuGroup>
-                                <DropdownMenuItem>
-                                    <CreateNewChat />
+                                <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onClick={() => {
+                                        handleGetFriends();
+                                        onOpenDialog("createchat");
+                                    }}
+                                >
+                                    <MessageCirclePlus className="size-4" />
+                                    Trò chuyện mới
                                 </DropdownMenuItem>
                             </DropdownMenuGroup>
 
                             <DropdownMenuSeparator />
                             <DropdownMenuGroup>
-                                <DropdownMenuItem>
-                                    <AddFriendModal />
+                                <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onClick={() => {
+                                        onOpenDialog("addfriend");
+                                    }}
+                                >
+                                    <UserPlus className="size-4" />
+                                    Thêm bạn bè
                                 </DropdownMenuItem>
                             </DropdownMenuGroup>
 
                             <DropdownMenuSeparator />
                             <DropdownMenuGroup>
-                                <DropdownMenuItem>
-                                    <NewGroupChatModal />
+                                <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onClick={() => {
+                                        handleGetFriends();
+                                        onOpenDialog("newgroup");
+                                    }}
+                                >
+                                    <Users className="size-4" />
+                                    Tạo nhóm
                                 </DropdownMenuItem>
                             </DropdownMenuGroup>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-            </SidebarHeader>
+            </div>
+
             <div>
                 {conversations.map((convo) => (
                     <MessageCard convo={convo} key={convo._id} />

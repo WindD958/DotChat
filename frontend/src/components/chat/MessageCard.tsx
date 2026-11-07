@@ -21,7 +21,7 @@ const MessageCard = ({ convo }: { convo: Conversation }) => {
 
     if (!user) return null;
 
-    const otherUser = convo.participants.find((p) => p._id !== user._id);
+    const otherUser = convo.participants.find((p) => p.userId !== user._id);
     if (!otherUser) return null;
 
     const unreadCount = convo.unreadCounts[user._id];
@@ -29,7 +29,11 @@ const MessageCard = ({ convo }: { convo: Conversation }) => {
     const nameGroup = convo.group?.name ?? null;
 
     const handleSelectConversation = async (id: string) => {
+        sessionStorage.clear();
         setActiveConversation(id);
+        if (id === activeConversationId) {
+            setActiveConversation(null);
+        }
         if (!messages[id]) {
             await fetchMessages();
         }
@@ -58,7 +62,9 @@ const MessageCard = ({ convo }: { convo: Conversation }) => {
                             />
                             <StatusBadge
                                 status={
-                                    onlineUsers.includes(otherUser?._id ?? "")
+                                    onlineUsers.includes(
+                                        otherUser?.userId ?? "",
+                                    )
                                         ? "online"
                                         : "offline"
                                 }
