@@ -41,7 +41,7 @@
         --chat-bubble-sent: 270 72% 76%;
         --chat-bubble-sent-border: 270 72% 70%;
         --chat-bubble-sent-foreground: 0 0% 20%;
-        --chat-bubble-received: 0 0% 96%;
+        --chat-bubble-received: 0 0% 98%;
         --chat-bubble-received-border: 0 0% 90%;
         --chat-bubble-received-foreground: 0 0% 20%;
 
@@ -154,7 +154,7 @@
         --chat-bubble-sent: 270 72% 65%;
         --chat-bubble-sent-border: 275 77% 43%;
         --chat-bubble-sent-foreground: 0 0% 100%;
-        --chat-bubble-received: 0 0% 10%;
+        --chat-bubble-received: 0 0% 13%;
         --chat-bubble-received-border: 0 0% 16%;
         --chat-bubble-received-foreground: 250 100% 90%;
 
@@ -229,7 +229,7 @@
     }
 
     .dark .nd-sidebar-nav {
-        background-color: #0f0f0f !important;
+        background-color: #111111 !important;
     }
 
     .dark .nd-sidebar-content {
@@ -371,7 +371,7 @@
     height: 14px;
 
     background: hsl(var(--chat-bubble-sent-border));
-    clip-path: polygon(0 0, 100% 50%, 0 100%);
+    clip-path: polygon(0 5%, 80% 50%, 0 95%);
 }
 
 .nd-chat-bubble-sent::after {
@@ -383,7 +383,7 @@
     height: 14px;
 
     background: hsl(var(--chat-bubble-sent));
-    clip-path: polygon(0 0, 100% 50%, 0 100%);
+    clip-path: polygon(0 5%, 80% 50%, 0 95%);
 }
 
 .nd-chat-bubble-received {
@@ -406,7 +406,7 @@
     height: 14px;
 
     background: hsl(var(--chat-bubble-received-border));
-    clip-path: polygon(100% 0, 0 50%, 100% 100%);
+    clip-path: polygon(100% 5%, 20% 50%, 100% 95%);
 }
 
 .nd-chat-bubble-received::after {
@@ -418,7 +418,7 @@
     height: 14px;
 
     background: hsl(var(--chat-bubble-received));
-    clip-path: polygon(100% 0, 0 50%, 100% 100%);
+    clip-path: polygon(100% 5%, 20% 50%, 100% 95%);
 }
 
 :root {

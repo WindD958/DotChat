@@ -17,17 +17,16 @@ const SelectedUsersList = ({ invitedUsers, onRemove }: SelectedUsersList) => {
             {invitedUsers.map((user) => (
                 <div
                     key={user._id}
-                    className="flex items-center gap-1 bg-muted text-sm rounded-2xl px-3 py-1"
+                    className="w-full flex items-center justify-between gap-2 bg-muted text-sm rounded-md p-2"
                 >
                     <UserAvatar
-                        type="chat"
+                        type="mess"
                         name={user.displayName}
                         avatarUrl={user.avatarUrl}
                     />
-                    <span>{user.displayName}</span>
-
+                    <span className="flex-1">{user.displayName}</span>
                     <X
-                        className="size-3 cursor-pointer hover:text-destructive"
+                        className="size-4 cursor-pointer hover:text-destructive"
                         onClick={() => onRemove(user)}
                     />
                 </div>

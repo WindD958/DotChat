@@ -91,12 +91,12 @@ const ChatWindowBody = () => {
     }
 
     return (
-        <div className="p-4 bg-primary-foreground h-full flex flex-col overflow-hidden">
+        <div className="p-4 pt-0 bg-primary-foreground h-full flex flex-col overflow-hidden">
             <div
                 id="scrollableDiv"
                 ref={containerRef}
                 onScroll={handleScrollSave}
-                className="flex flex-col-reverse overflow-y-auto overflow-x-hidden beautiful-scrollbar"
+                className="mx-1 flex flex-col-reverse overflow-y-auto overflow-x-hidden beautiful-scrollbar"
             >
                 <div ref={messagesEndRef}></div>
                 <InfinityScroll

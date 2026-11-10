@@ -2,6 +2,7 @@ import { friendService } from "@/services/friendService";
 import type { FriendState } from "@/types/store";
 import { toast } from "sonner";
 import { create } from "zustand";
+import { usePresenceStore } from "./usePresenceStore";
 
 export const useFriendStore = create<FriendState>((set, get) => ({
     friends: [],
@@ -91,6 +92,7 @@ export const useFriendStore = create<FriendState>((set, get) => ({
         try {
             set({ loading: true });
             const friends = await friendService.getFriendList();
+            usePresenceStore.getState().setPresences(friends);
             set({ friends: friends });
         } catch (error) {
             console.error("Lỗi xảy ra khi load friends", error);

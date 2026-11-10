@@ -9,7 +9,8 @@ import GroupChatAvatar from "./GroupChatAvatar";
 import { useSocketStore } from "@/stores/useSocketStore";
 import { Menu } from "lucide-react";
 import { Button } from "../ui/button";
-
+import UserStatus from "./UserStatus";
+import { useCurrentTime } from "@/hooks/useCurrentTime";
 interface Props {
     chat: Conversation;
     onToggle: () => void;
@@ -19,6 +20,7 @@ const ChatWindowHeader = ({ chat, onToggle }: Props) => {
     const { conversations, activeConversationId } = useChatStore();
     const { user } = useAuthStore();
     const { onlineUsers } = useSocketStore();
+    const now = useCurrentTime();
     let otherUser;
 
     chat = chat ?? conversations.find((c) => c._id === activeConversationId);
@@ -26,7 +28,10 @@ const ChatWindowHeader = ({ chat, onToggle }: Props) => {
     if (!chat) {
         return (
             <header className="md:hidden sticky top-0 z-10 flex items-center gap-2 px-4 py-2 w-full">
-                <SidebarTrigger className="ml-1 text-foreground" />
+                <SidebarTrigger
+                    size="icon-lg"
+                    className="cursor-pointer ml-1 text-foreground"
+                />
             </header>
         );
     }
@@ -36,7 +41,6 @@ const ChatWindowHeader = ({ chat, onToggle }: Props) => {
             (p) => p.userId !== user?._id,
         );
         otherUser = otherUsers.length > 0 ? otherUsers[0] : null;
-
         if (!user || !otherUser) return;
     }
 
@@ -44,7 +48,7 @@ const ChatWindowHeader = ({ chat, onToggle }: Props) => {
         <header className="sticky top-0 z-10 px-4 py-2 flex items-center bg-background">
             <div className="flex items-center gap-2 w-full">
                 <SidebarTrigger
-                    size={"lg"}
+                    size="icon-lg"
                     className="cursor-pointer ml-1 text-foreground"
                 />
                 <Separator
@@ -81,16 +85,26 @@ const ChatWindowHeader = ({ chat, onToggle }: Props) => {
                         )}
                     </div>
 
-                    <h2 className="font-semibold text-foreground">
-                        {chat.type === "direct"
-                            ? otherUser?.displayName
-                            : chat.group?.name}
-                    </h2>
+                    <div>
+                        <h2 className="font-semibold text-foreground">
+                            {chat.type === "direct"
+                                ? otherUser?.displayName
+                                : chat.group?.name}
+                        </h2>
+                        {chat.type === "group" ? (
+                            <p className="text-sm truncate text-muted-foreground">
+                                {chat.participants.length} thành viên
+                            </p>
+                        ) : (
+                            <UserStatus userId={otherUser?.userId} now={now} />
+                        )}
+                    </div>
                 </div>
             </div>
 
             <Button
                 onClick={onToggle}
+                size="icon-lg"
                 variant="ghost"
                 className="cursor-pointer"
             >

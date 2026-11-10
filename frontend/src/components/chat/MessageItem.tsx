@@ -2,6 +2,7 @@ import { cn, formatMessageTime } from "@/lib/utils";
 import type { Conversation, Message, Participant } from "@/types/chat";
 import UserAvatar from "./UserAvatar";
 import { Badge } from "../ui/badge";
+import { CheckCheck, Eye } from "lucide-react";
 
 interface MessageItemProps {
     message: Message;
@@ -26,21 +27,26 @@ const MessageItem = ({
             new Date(prev?.createdAt || 0).getTime() >
             300000;
 
-    const isGroupBreak = isShowTime || message.senderId !== prev?.senderId;
-
     const participant = selectedConvo.participants.find(
         (p: Participant) => p.userId === message.senderId,
     );
 
     return (
-        <>
+        <div className="mt-2">
+            {/* Time */}
+            {isShowTime && (
+                <span className="flex text-xs text-muted-foreground px-1 justify-center">
+                    {formatMessageTime(new Date(message.createdAt))}
+                </span>
+            )}
+
             <div
                 className={cn(
-                    "flex gap-3 message-bounce mt-1",
+                    "flex gap-2.5 message-bounce",
                     message.isOwn ? "justify-end" : "justify-start",
                 )}
             >
-                {/* Avatar */}
+                {/* Other Avatar */}
                 {!message.isOwn && (
                     <div className="w-8">
                         <UserAvatar
@@ -70,26 +76,9 @@ const MessageItem = ({
                             {message.content}
                         </p>
                     </div>
-
-                    {/* Seen | Delivered */}
-                    {message.isOwn &&
-                        message._id === selectedConvo.lastMessage?._id && (
-                            <Badge
-                                variant="outline"
-                                className={cn(
-                                    "text-xs px-1.5 py-0.5 h-4 border-0",
-                                    lastMessageStatus === "seen"
-                                        ? "bg-primary/20 text-primary"
-                                        : "bg-muted text-muted-foreground",
-                                )}
-                            >
-                                {lastMessageStatus === "seen"
-                                    ? "Đã xem"
-                                    : "Đã gửi"}
-                            </Badge>
-                        )}
                 </div>
 
+                {/* User Avatar */}
                 {message.isOwn && (
                     <div className="w-8">
                         <UserAvatar
@@ -100,13 +89,35 @@ const MessageItem = ({
                     </div>
                 )}
             </div>
-            {/* Time */}
-            {isShowTime && (
-                <span className="flex text-xs text-muted-foreground px-1 justify-center">
-                    {formatMessageTime(new Date(message.createdAt))}
-                </span>
-            )}
-        </>
+
+            {/* Seen | Delivered */}
+            {message.isOwn &&
+                message._id === selectedConvo.lastMessage?._id && (
+                    <div className="flex justify-end mt-2 mr-9">
+                        <Badge
+                            variant="outline"
+                            className={cn(
+                                "text-xs px-1.5 py-0.5 h-4 border-0",
+                                lastMessageStatus === "seen"
+                                    ? "bg-primary/20 text-primary"
+                                    : "bg-muted text-muted-foreground",
+                            )}
+                        >
+                            {lastMessageStatus === "seen" ? (
+                                <>
+                                    <Eye />
+                                    Đã xem
+                                </>
+                            ) : (
+                                <>
+                                    <CheckCheck />
+                                    Đã gửi
+                                </>
+                            )}
+                        </Badge>
+                    </div>
+                )}
+        </div>
     );
 };
 

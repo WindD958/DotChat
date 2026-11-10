@@ -27,7 +27,7 @@ const ChatCard = ({
         <Card
             key={convoId}
             className={cn(
-                "border-b ring-0 rounded-none p-3 cursor-pointer transition-smooth bg-gray-100 dark:bg-black/5 hover:bg-muted/90",
+                "min-h-18 border-b ring-0 rounded-none p-3 cursor-pointer transition-smooth bg-gray-100 dark:bg-black/5 hover:bg-primary/8",
                 isActive &&
                     "bg-primary/20 hover:bg-primary/20 dark:bg-primary/40",
             )}
@@ -58,7 +58,7 @@ const ChatCard = ({
                         <div className="flex items-center gap-1 flex-1 min-w-0">
                             {subtitle}
                         </div>
-                        <MoreHorizontal className="size-4 text-muted-foreground opacity-0 group-hover:opacity-100 hover:size-5 transition-smooth" />
+                        <MoreHorizontal className="size-5 text-muted-foreground md:opacity-0 hover:scale-120 group-hover:opacity-100 transition-smooth" />
                     </div>
                 </div>
             </div>

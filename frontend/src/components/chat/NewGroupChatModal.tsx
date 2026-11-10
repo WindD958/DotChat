@@ -2,6 +2,7 @@ import { useFriendStore } from "@/stores/useFriendStore";
 import { useState } from "react";
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogFooter,
     DialogHeader,
@@ -16,6 +17,7 @@ import { toast } from "sonner";
 import { useChatStore } from "@/stores/useChatStore";
 import { Button } from "../ui/button";
 import { UserPlus } from "lucide-react";
+import { Separator } from "../ui/separator";
 
 type Props = {
     open: boolean;
@@ -75,63 +77,85 @@ const NewGroupChatModal = ({ open, onOpenChange }: Props) => {
                     <DialogTitle>Tạo nhóm</DialogTitle>
                 </DialogHeader>
 
-                <form className="space-y-4" onSubmit={handleSubmit}>
-                    <div className="space-y-2">
-                        <Label
-                            htmlFor="groupName"
-                            className="text-sm font-semibold"
-                        >
-                            Tên nhóm
-                        </Label>
-                        <Input
-                            id="groupName"
-                            placeholder="Gõ tên nhóm vào đây..."
-                            className="border-border/50 focus:border-primary/50"
-                            value={groupName}
-                            onChange={(e) => setGroupName(e.target.value)}
-                            required
-                        />
-                    </div>
+                <form
+                    className="space-y-2 min-h-60 flex flex-col justify-between"
+                    onSubmit={handleSubmit}
+                >
+                    <div className="flex flex-1 gap-2">
+                        <div className="flex-1">
+                            <div className="space-y-2">
+                                <Label
+                                    htmlFor="invite"
+                                    className="text-sm font-semibold"
+                                >
+                                    Mời thành viên
+                                </Label>
 
-                    <div className="space-y-2">
-                        <Label
-                            htmlFor="invite"
-                            className="text-sm font-semibold"
-                        >
-                            Mời thành viên
-                        </Label>
+                                <Input
+                                    id="invite"
+                                    placeholder="Tìm theo tên..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                />
 
-                        <Input
-                            id="invite"
-                            placeholder="Tìm theo tên..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-
-                        {search && filteredFriends.length > 0 && (
-                            <InviteSuggestionList
-                                filterFriends={filteredFriends}
-                                onSelect={handleSelectFriend}
+                                {search && filteredFriends.length > 0 && (
+                                    <InviteSuggestionList
+                                        filterFriends={filteredFriends}
+                                        onSelect={handleSelectFriend}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                        <Separator orientation="vertical" className="w-0.25" />
+                        <div className="flex-1">
+                            <div className="space-y-2">
+                                <Label
+                                    htmlFor="groupName"
+                                    className="text-sm font-semibold"
+                                >
+                                    Tên nhóm
+                                </Label>
+                                <Input
+                                    id="groupName"
+                                    placeholder="Gõ tên nhóm vào đây..."
+                                    className="border-border/50 focus:border-primary/50"
+                                    value={groupName}
+                                    onChange={(e) =>
+                                        setGroupName(e.target.value)
+                                    }
+                                    required
+                                />
+                            </div>
+                            <SelectedUsersList
+                                invitedUsers={invitedUsers}
+                                onRemove={handleRemoveFriend}
                             />
-                        )}
-
-                        <SelectedUsersList
-                            invitedUsers={invitedUsers}
-                            onRemove={handleRemoveFriend}
-                        />
+                        </div>
                     </div>
 
                     <DialogFooter>
+                        <DialogClose
+                            render={
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="cursor-pointer flex-1 hover:text-destructive"
+                                >
+                                    Huỷ
+                                </Button>
+                            }
+                        ></DialogClose>
+
                         <Button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 bg-gradient-chat text-white hover:opacity-90 transition-smooth"
+                            className="cursor-pointer flex-1 bg-gradient-chat text-white hover:opacity-90 transition-smooth"
                         >
                             {loading ? (
                                 <span>Đang tạo...</span>
                             ) : (
                                 <>
-                                    <UserPlus className="size-4 mr-2" />
+                                    <UserPlus className="size-4" />
                                     Tạo nhóm
                                 </>
                             )}

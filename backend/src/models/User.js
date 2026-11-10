@@ -39,6 +39,14 @@ const userSchema = new mongoose.Schema(
             type: String,
             sparse: true,
         },
+        isOnline: {
+            type: Boolean,
+            default: false,
+        },
+        lastOnline: {
+            type: Date,
+            default: null,
+        },
     },
     {
         timestamps: true,

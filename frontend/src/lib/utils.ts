@@ -61,3 +61,46 @@ export const formatMessageTime = (date: Date) => {
         }/${date.getFullYear()} ${timeStr}`; // ví dụ: "15/12/2023 18:40"
     }
 };
+
+export const formatOfflineTime = (
+    lastOnline: string | null,
+    now: number = Date.now(),
+): string => {
+    if (!lastOnline) return "Không hoạt động";
+
+    const timestamp = new Date(lastOnline).getTime();
+
+    if (Number.isNaN(timestamp)) {
+        return "Không xác định";
+    }
+
+    const diff = Math.max(0, now - timestamp);
+
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (minutes < 1) return "Vừa mới truy cập";
+
+    if (minutes < 60) {
+        return `Hoạt động ${minutes} phút trước`;
+    }
+
+    if (hours < 24) {
+        return `Hoạt động ${hours} giờ trước`;
+    }
+
+    if (days < 30) {
+        return `Hoạt động ${days} ngày trước`;
+    }
+
+    const months = Math.floor(days / 30);
+
+    if (months < 12) {
+        return `Hoạt động ${months} tháng trước`;
+    }
+
+    const years = Math.floor(days / 365);
+
+    return `Hoạt động ${years} năm trước`;
+};

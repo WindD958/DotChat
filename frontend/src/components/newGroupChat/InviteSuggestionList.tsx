@@ -15,15 +15,15 @@ const InviteSuggestionList = ({
     }
 
     return (
-        <div className="border rounded-lg mt-2 max-h-[180px] overflow-y-auto divide-y">
+        <div className="border rounded-md overflow-y-auto divide-y">
             {filterFriends.map((friend) => (
                 <div
                     onClick={() => onSelect(friend)}
                     key={friend._id}
-                    className="flex items-center gap-3 p-2 cursor-pointer hover:bg-muted"
+                    className="flex items-center gap-2 p-2 cursor-pointer hover:bg-muted"
                 >
                     <UserAvatar
-                        type="chat"
+                        type="mess"
                         name={friend.displayName}
                         avatarUrl={friend.avatarUrl}
                     />

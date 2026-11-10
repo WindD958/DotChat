@@ -3,6 +3,7 @@ import { io, type Socket } from "socket.io-client";
 import { useAuthStore } from "./useAuthStore";
 import type { SocketState } from "@/types/store";
 import { useChatStore } from "./useChatStore";
+import { usePresenceStore } from "./usePresenceStore";
 
 const baseUrl = import.meta.env.VITE_SOCKET_URL;
 
@@ -18,6 +19,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
         const socket: Socket = io(baseUrl, {
             auth: { token: accessToken },
             transports: ["websocket"],
+            autoConnect: false,
         });
 
         set({ socket });
@@ -26,9 +28,50 @@ export const useSocketStore = create<SocketState>((set, get) => ({
             console.log("Đã kết nối với socket");
         });
 
-        socket.on("online-users", (userIds) => {
+        // Danh sách người dùng đang Online
+        socket.on("online-users", (userIds: string[]) => {
             set({ onlineUsers: userIds });
+
+            const setUserOnline = usePresenceStore.getState().setUserOnline;
+
+            const onlineSet = new Set(userIds);
+
+            // Cập nhật trạng thái các user có trong danh sách
+            onlineSet.forEach((userId) => {
+                setUserOnline(userId);
+            });
         });
+
+        // Người dùng vừa Online
+        socket.on("user-online", ({ userId }: { userId: string }) => {
+            set((state) => ({
+                onlineUsers: state.onlineUsers.includes(userId)
+                    ? state.onlineUsers
+                    : [...state.onlineUsers, userId],
+            }));
+
+            usePresenceStore.getState().setUserOnline(userId);
+        });
+
+        // Người dùng vừa Offline
+        socket.on(
+            "user-offline",
+            ({
+                userId,
+                lastOnline,
+            }: {
+                userId: string;
+                lastOnline: string;
+            }) => {
+                set((state) => ({
+                    onlineUsers: state.onlineUsers.filter(
+                        (id) => id !== userId,
+                    ),
+                }));
+
+                usePresenceStore.getState().setUserOffline(userId, lastOnline);
+            },
+        );
 
         // New Message
         socket.on("new-message", ({ message, conversation, unreadCounts }) => {
@@ -44,8 +87,6 @@ export const useSocketStore = create<SocketState>((set, get) => ({
                     avatarUrl: null,
                 },
             };
-
-            console.log(lastMessage);
 
             const updatedConversation = {
                 ...conversation,
@@ -84,6 +125,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
             useChatStore.getState().addConvo(conversation);
             socket.emit("join-conversation", conversation._id);
         });
+        socket.connect();
     },
     disconnectSocket: () => {
         const socket = get().socket;

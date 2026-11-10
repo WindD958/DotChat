@@ -76,7 +76,7 @@ const SendFriendRequestForm = ({
                             <span>Đang gửi...</span>
                         ) : (
                             <>
-                                <UserPlus className="size-4 mr-2 " />
+                                <UserPlus className="size-4" />
                                 Kết bạn
                             </>
                         )}

@@ -3,13 +3,18 @@ import { Card } from "../ui/card";
 import UserAvatar from "../chat/UserAvatar";
 import { useChatStore } from "@/stores/useChatStore";
 
-const FriendListModal = () => {
+type Props = {
+    onOpenChange: (open: boolean) => void;
+};
+
+const FriendListModal = ({ onOpenChange }: Props) => {
     const { friends } = useFriendStore();
     const { createConversation, fetchMessages } = useChatStore();
 
     const handleAddConversation = async (friendId: string) => {
         await createConversation("direct", "", [friendId]);
         await fetchMessages();
+        onOpenChange(false);
     };
 
     return (

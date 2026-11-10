@@ -1,4 +1,9 @@
+import { useCurrentTime } from "@/hooks/useCurrentTime";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useChatStore } from "@/stores/useChatStore";
+import { useSocketStore } from "@/stores/useSocketStore";
+import type { Conversation } from "@/types/chat";
 import {
     X,
     Search,
@@ -17,12 +22,18 @@ import {
     Users,
     MoreHorizontal,
 } from "lucide-react";
+import UserAvatar from "../chat/UserAvatar";
+import StatusBadge from "../chat/StatusBadge";
+import GroupChatAvatar from "../chat/GroupChatAvatar";
+import UserStatus from "../chat/UserStatus";
+import { Button } from "../ui/button";
 
-interface Props {
+interface InfoSidebarProps {
     onToggle: () => void;
+    convo: Conversation;
 }
 
-const InfoSidebar = ({ onToggle }: Props) => {
+const InfoSidebar = ({ onToggle, convo }: InfoSidebarProps) => {
     const menuGroups = [
         {
             title: "Tệp phương tiện",
@@ -57,6 +68,22 @@ const InfoSidebar = ({ onToggle }: Props) => {
         },
     ];
 
+    const { conversations, activeConversationId } = useChatStore();
+    const { user } = useAuthStore();
+    const { onlineUsers } = useSocketStore();
+    const now = useCurrentTime();
+    let otherUser;
+
+    convo = convo ?? conversations.find((c) => c._id === activeConversationId);
+
+    if (convo.type === "direct") {
+        const otherUsers = convo.participants.filter(
+            (p) => p.userId !== user?._id,
+        );
+        otherUser = otherUsers.length > 0 ? otherUsers[0] : null;
+        if (!user || !otherUser) return;
+    }
+
     return (
         <aside className="flex h-full w-[320px] flex-col border-l border-gray-200 bg-white">
             {/* Header */}
@@ -65,9 +92,14 @@ const InfoSidebar = ({ onToggle }: Props) => {
                     Thông tin hội thoại
                 </h2>
 
-                <button className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100">
-                    <X size={19} onClick={onToggle} />
-                </button>
+                <Button
+                    onClick={onToggle}
+                    variant="ghost"
+                    size="icon-lg"
+                    className="cursor-pointer"
+                >
+                    <X className="size-4" />
+                </Button>
             </div>
 
             {/* Content */}
@@ -75,22 +107,46 @@ const InfoSidebar = ({ onToggle }: Props) => {
                 {/* Profile */}
                 <div className="flex flex-col items-center px-5 pb-6 pt-7">
                     <div className="relative">
-                        <img
-                            src="https://i.pravatar.cc/150?img=12"
-                            className="h-[88px] w-[88px] rounded-full object-cover"
-                            alt="Avatar"
-                        />
-
-                        <span className="absolute bottom-1 right-1 h-4 w-4 rounded-full border-[3px] border-white bg-green-500" />
+                        {convo.type === "direct" ? (
+                            <>
+                                <UserAvatar
+                                    type={"profile"}
+                                    name={otherUser?.displayName || "DotChat"}
+                                    avatarUrl={
+                                        otherUser?.avatarUrl || undefined
+                                    }
+                                />
+                                <StatusBadge
+                                    status={
+                                        onlineUsers.includes(
+                                            otherUser?.userId ?? "",
+                                        )
+                                            ? "online"
+                                            : "offline"
+                                    }
+                                />
+                            </>
+                        ) : (
+                            <GroupChatAvatar
+                                participants={convo.participants}
+                                type="chat"
+                            />
+                        )}
                     </div>
 
                     <h3 className="mt-3 text-lg font-semibold text-gray-900">
-                        Nguyễn Văn A
+                        {convo.type === "direct"
+                            ? otherUser?.displayName
+                            : convo.group?.name}
                     </h3>
 
-                    <p className="mt-1 text-xs text-green-500">
-                        Đang hoạt động
-                    </p>
+                    {convo.type === "group" ? (
+                        <p className="text-sm truncate text-muted-foreground">
+                            {convo.participants.length} thành viên
+                        </p>
+                    ) : (
+                        <UserStatus userId={otherUser?.userId} now={now} />
+                    )}
 
                     {/* Quick actions */}
                     <div className="mt-6 flex w-full justify-center gap-8">
@@ -116,7 +172,7 @@ const InfoSidebar = ({ onToggle }: Props) => {
                     </div>
                 </div>
 
-                <div className="h-2 bg-gray-50" />
+                <div className="h-2 bg-gray-100" />
 
                 {/* Shared media */}
                 <section className="border-b border-gray-100 px-5 py-5">

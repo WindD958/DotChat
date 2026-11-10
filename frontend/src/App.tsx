@@ -10,11 +10,13 @@ import { useEffect } from "react";
 import { useAuthStore } from "./stores/useAuthStore";
 import { useSocketStore } from "./stores/useSocketStore";
 import NotFoundPage from "./pages/NotFoundPage";
+import { useFriendStore } from "./stores/useFriendStore";
 
 function App() {
     const { isDark, setTheme } = useThemeStore();
     const { accessToken } = useAuthStore();
     const { connectSocket, disconnectSocket } = useSocketStore();
+    const { getFriends } = useFriendStore();
 
     useEffect(() => {
         setTheme(isDark);
@@ -22,6 +24,7 @@ function App() {
 
     useEffect(() => {
         if (accessToken) {
+            getFriends();
             connectSocket();
         }
 

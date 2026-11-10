@@ -79,7 +79,7 @@ const SearchForm = ({
                         <span>Đang tìm ...</span>
                     ) : (
                         <>
-                            <Search className="size-4 mr-2" /> Tìm
+                            <Search className="size-4" /> Tìm
                         </>
                     )}
                 </Button>

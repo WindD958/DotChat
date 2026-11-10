@@ -13,7 +13,7 @@ const CreateNewChat = ({ open, onOpenChange }: Props) => {
                 <DialogHeader>
                     <DialogTitle>Trò chuyện mới</DialogTitle>
                 </DialogHeader>
-                <FriendListModal />
+                <FriendListModal onOpenChange={onOpenChange} />
             </DialogContent>
         </Dialog>
     );

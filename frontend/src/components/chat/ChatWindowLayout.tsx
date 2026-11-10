@@ -70,7 +70,10 @@ const ChatWindowLayout = () => {
                     isOpen ? "w-[320px]" : "w-0",
                 )}
             >
-                <InfoSidebar onToggle={() => setIsOpen((prev) => !prev)} />
+                <InfoSidebar
+                    convo={selectedConvo}
+                    onToggle={() => setIsOpen((prev) => !prev)}
+                />
             </div>
         </SidebarInset>
     );
