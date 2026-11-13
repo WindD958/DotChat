@@ -4,12 +4,12 @@ import { useAuthStore } from "./useAuthStore";
 import type { SocketState } from "@/types/store";
 import { useChatStore } from "./useChatStore";
 import { usePresenceStore } from "./usePresenceStore";
+import type { PresenceItem } from "@/types/presence";
 
 const baseUrl = import.meta.env.VITE_SOCKET_URL;
 
 export const useSocketStore = create<SocketState>((set, get) => ({
     socket: null,
-    onlineUsers: [],
     connectSocket: () => {
         const accessToken = useAuthStore.getState().accessToken;
         const exitingSocket = get().socket;
@@ -28,50 +28,28 @@ export const useSocketStore = create<SocketState>((set, get) => ({
             console.log("Đã kết nối với socket");
         });
 
-        // Danh sách người dùng đang Online
-        socket.on("online-users", (userIds: string[]) => {
-            set({ onlineUsers: userIds });
+        socket.on("presence-snapshot", (items: PresenceItem[]) => {
+            const presenceStore = usePresenceStore.getState();
 
-            const setUserOnline = usePresenceStore.getState().setUserOnline;
-
-            const onlineSet = new Set(userIds);
-
-            // Cập nhật trạng thái các user có trong danh sách
-            onlineSet.forEach((userId) => {
-                setUserOnline(userId);
+            // Cập nhật danh sách trạng thái
+            items.forEach((item) => {
+                presenceStore.setPresence(item.userId, {
+                    isOnline: item.isOnline,
+                    lastOnline: item.lastOnline,
+                });
             });
         });
 
-        // Người dùng vừa Online
-        socket.on("user-online", ({ userId }: { userId: string }) => {
-            set((state) => ({
-                onlineUsers: state.onlineUsers.includes(userId)
-                    ? state.onlineUsers
-                    : [...state.onlineUsers, userId],
-            }));
-
-            usePresenceStore.getState().setUserOnline(userId);
+        socket.on("presence-update", (item: PresenceItem) => {
+            usePresenceStore.getState().setPresence(item.userId, {
+                isOnline: item.isOnline,
+                lastOnline: item.lastOnline,
+            });
         });
 
-        // Người dùng vừa Offline
-        socket.on(
-            "user-offline",
-            ({
-                userId,
-                lastOnline,
-            }: {
-                userId: string;
-                lastOnline: string;
-            }) => {
-                set((state) => ({
-                    onlineUsers: state.onlineUsers.filter(
-                        (id) => id !== userId,
-                    ),
-                }));
-
-                usePresenceStore.getState().setUserOffline(userId, lastOnline);
-            },
-        );
+        socket.on("presence-hidden", ({ userId }: { userId: string }) => {
+            usePresenceStore.getState().removePresence(userId);
+        });
 
         // New Message
         socket.on("new-message", ({ message, conversation, unreadCounts }) => {

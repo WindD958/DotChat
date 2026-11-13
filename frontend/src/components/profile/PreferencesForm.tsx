@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Sun, Moon } from "lucide-react";
 import {
     Card,
@@ -11,13 +9,38 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useThemeStore } from "@/stores/useThemeStore";
-import { useState } from "react";
+import { useEffect } from "react";
+import { useSettingsStore } from "@/stores/useSettingsStore";
+import { useFriendStore } from "@/stores/useFriendStore";
 
 const PreferencesForm = () => {
     const { isDark, toggleTheme } = useThemeStore();
+    const settings = useSettingsStore((state) => state.settings);
+    const fetchSettings = useSettingsStore((state) => state.fetchSettings);
 
-    //   các bạn cần handle logic setOnlineStatus
-    const [onlineStatus, setOnlineStatus] = useState(false);
+    const updatePrivacy = useSettingsStore((state) => state.updatePrivacy);
+
+    const fetchFriends = useFriendStore((state) => state.getFriends);
+
+    useEffect(() => {
+        if (!settings) {
+            fetchSettings();
+        }
+    }, [settings, fetchSettings]);
+
+    const handleOnlineStatus = async (checked: boolean) => {
+        try {
+            await updatePrivacy({
+                hideActivityStatus: !checked,
+            });
+
+            await fetchFriends();
+        } catch (error) {
+            console.error("Không thể cập nhật cài đặt:", error);
+        }
+    };
+
+    const onlineStatus = settings?.privacy.hideActivityStatus ?? false;
 
     return (
         <Card className="glass-strong border-border/30">
@@ -64,7 +87,7 @@ const PreferencesForm = () => {
                             htmlFor="online-status"
                             className="text-base font-medium"
                         >
-                            Hiển thị trạng thái online
+                            Trạng thái hoạt động
                         </Label>
                         <p className="text-sm text-muted-foreground">
                             Cho phép người khác thấy khi bạn đang online
@@ -72,9 +95,9 @@ const PreferencesForm = () => {
                     </div>
                     <Switch
                         id="online-status"
-                        checked={onlineStatus}
-                        onCheckedChange={setOnlineStatus}
-                        className="data-[state=checked]:bg-primary-glow"
+                        checked={!onlineStatus}
+                        onCheckedChange={handleOnlineStatus}
+                        className="cursor-pointer data-[state=checked]:bg-primary-glow"
                     />
                 </div>
             </CardContent>

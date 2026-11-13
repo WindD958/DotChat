@@ -3,9 +3,7 @@ import { create } from "zustand";
 
 interface PresenceState {
     presences: Record<string, UserPresence>;
-
     setPresence: (userId: string, presence: UserPresence) => void;
-
     setPresences: (
         users: {
             _id: string;
@@ -13,16 +11,15 @@ interface PresenceState {
             lastOnline: string | null;
         }[],
     ) => void;
-
     setUserOnline: (userId: string) => void;
-
     setUserOffline: (userId: string, lastOnline: string) => void;
+    removePresence: (userId: string) => void;
+    clearPresences: () => void;
 }
 
 export const usePresenceStore = create<PresenceState>((set) => ({
     presences: {},
 
-    // Cập nhật một người dùng
     setPresence: (userId, presence) =>
         set((state) => ({
             presences: {
@@ -31,22 +28,25 @@ export const usePresenceStore = create<PresenceState>((set) => ({
             },
         })),
 
-    // Đồng bộ danh sách người dùng từ API
     setPresences: (users) =>
         set((state) => {
-            const updated = { ...state.presences };
+            const next = { ...state.presences };
 
-            users.forEach((user) => {
-                updated[user._id] = {
+            for (const user of users) {
+                if (user.isOnline === null) {
+                    delete next[user._id];
+                    continue;
+                }
+
+                next[user._id] = {
                     isOnline: user.isOnline,
                     lastOnline: user.lastOnline,
                 };
-            });
+            }
 
-            return { presences: updated };
+            return { presences: next };
         }),
 
-    // Người dùng vừa Online
     setUserOnline: (userId) =>
         set((state) => ({
             presences: {
@@ -58,7 +58,6 @@ export const usePresenceStore = create<PresenceState>((set) => ({
             },
         })),
 
-    // Người dùng vừa Offline
     setUserOffline: (userId, lastOnline) =>
         set((state) => ({
             presences: {
@@ -69,4 +68,15 @@ export const usePresenceStore = create<PresenceState>((set) => ({
                 },
             },
         })),
+
+    removePresence: (userId) =>
+        set((state) => {
+            const next = { ...state.presences };
+
+            delete next[userId];
+
+            return { presences: next };
+        }),
+
+    clearPresences: () => set({ presences: {} }),
 }));

@@ -1,8 +1,6 @@
 import { useCurrentTime } from "@/hooks/useCurrentTime";
-import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useChatStore } from "@/stores/useChatStore";
-import { useSocketStore } from "@/stores/useSocketStore";
 import type { Conversation } from "@/types/chat";
 import {
     X,
@@ -70,7 +68,6 @@ const InfoSidebar = ({ onToggle, convo }: InfoSidebarProps) => {
 
     const { conversations, activeConversationId } = useChatStore();
     const { user } = useAuthStore();
-    const { onlineUsers } = useSocketStore();
     const now = useCurrentTime();
     let otherUser;
 
@@ -116,15 +113,7 @@ const InfoSidebar = ({ onToggle, convo }: InfoSidebarProps) => {
                                         otherUser?.avatarUrl || undefined
                                     }
                                 />
-                                <StatusBadge
-                                    status={
-                                        onlineUsers.includes(
-                                            otherUser?.userId ?? "",
-                                        )
-                                            ? "online"
-                                            : "offline"
-                                    }
-                                />
+                                <StatusBadge userId={otherUser?.userId} />
                             </>
                         ) : (
                             <GroupChatAvatar

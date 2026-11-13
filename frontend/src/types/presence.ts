@@ -3,6 +3,10 @@ export interface UserPresence {
     lastOnline: string | null;
 }
 
+export interface PresenceItem extends UserPresence {
+    userId: string;
+}
+
 export interface UserOfflinePayload {
     userId: string;
     lastOnline: string;

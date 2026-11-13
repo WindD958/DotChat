@@ -4,6 +4,7 @@ import express from "express";
 import { socketAuthMiddleware } from "../middlewares/socketMiddleware.js";
 import { getUserConversationsForSocketIO } from "../controllers/conversationController.js";
 import User from "../models/User.js";
+import { canViewPresence } from "../services/presenceService.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -15,6 +16,115 @@ const io = new Server(server, {
     },
 });
 
+const getOnlineUserIds = () => {
+    return [...onlineUsers.entries()]
+        .filter(([, sockets]) => sockets.size > 0)
+        .map(([userId]) => userId);
+};
+
+const getOnlineUsers = async () => {
+    const ids = getOnlineUserIds();
+
+    return User.find({
+        _id: { $in: ids },
+    })
+        .select("_id isOnline lastOnline settings")
+        .lean();
+};
+
+const sendPresenceSnapshot = async (socket, viewerId) => {
+    const [viewer, onlineUsersData] = await Promise.all([
+        User.findById(viewerId).select("_id settings").lean(),
+
+        getOnlineUsers(),
+    ]);
+
+    if (!viewer) return;
+
+    const snapshot = onlineUsersData
+        .filter((target) => canViewPresence(viewer, target))
+
+        .map((target) => ({
+            userId: target._id.toString(),
+            isOnline: true,
+            lastOnline: target.lastOnline ?? null,
+        }));
+    socket.emit("presence-snapshot", snapshot);
+};
+
+const broadcastPresence = async (targetId, presence) => {
+    const [target, viewers] = await Promise.all([
+        User.findById(targetId).select("_id settings").lean(),
+
+        getOnlineUsers(),
+    ]);
+
+    if (!target) return;
+
+    for (const viewer of viewers) {
+        const viewerId = viewer._id.toString();
+        const targetUserId = target._id.toString();
+
+        if (viewerId === targetUserId) continue;
+
+        if (canViewPresence(viewer, target)) {
+            io.to(viewerId).emit("presence-update", {
+                userId: targetUserId,
+                ...presence,
+            });
+        } else {
+            io.to(viewerId).emit("presence-hidden", {
+                userId: targetUserId,
+            });
+        }
+    }
+};
+
+export const refreshPresenceForUser = async (userId) => {
+    const [changedUser, onlineUsersData] = await Promise.all([
+        User.findById(userId).select("_id isOnline lastOnline settings").lean(),
+
+        getOnlineUsers(),
+    ]);
+
+    if (!changedUser) return;
+
+    const changedId = changedUser._id.toString();
+
+    for (const otherUser of onlineUsersData) {
+        const otherId = otherUser._id.toString();
+
+        if (otherId === changedId) continue;
+
+        const allowed = canViewPresence(changedUser, otherUser);
+
+        if (allowed) {
+            // Người thay đổi cài đặt có thể xem người kia
+            io.to(changedId).emit("presence-update", {
+                userId: otherId,
+                isOnline: otherUser.isOnline ?? false,
+                lastOnline: otherUser.lastOnline ?? null,
+            });
+
+            // Người kia có thể xem người thay đổi cài đặt
+            io.to(otherId).emit("presence-update", {
+                userId: changedId,
+                isOnline: changedUser.isOnline ?? false,
+                lastOnline: changedUser.lastOnline ?? null,
+            });
+        } else {
+            // Hai bên đều phải xóa trạng thái của nhau
+            io.to(changedId).emit("presence-hidden", {
+                userId: otherId,
+            });
+
+            io.to(otherId).emit("presence-hidden", {
+                userId: changedId,
+            });
+        }
+    }
+};
+
 io.use(socketAuthMiddleware);
 
 // Map<userId, Set<socketId>>
@@ -25,7 +135,16 @@ io.on("connection", async (socket) => {
     const user = socket.user;
     const userId = user._id.toString();
 
-    // Hủy timeout Offline nếu người dùng reconnect
+    socket.join(userId);
+
+    let userSockets = onlineUsers.get(userId);
+
+    if (!userSockets) {
+        userSockets = new Set();
+        onlineUsers.set(userId, userSockets);
+    }
+
+    // Hủy bộ đếm Offline nếu người dùng kết nối lại
     const disconnectTimer = disconnectTimers.get(userId);
 
     if (disconnectTimer) {
@@ -33,34 +152,24 @@ io.on("connection", async (socket) => {
         disconnectTimers.delete(userId);
     }
 
-    // Kiểm tra đây có phải kết nối đầu tiên không
-    let userSockets = onlineUsers.get(userId);
+    const isFirstConnection = userSockets.size === 0;
 
-    const isFirstConnection = !userSockets || userSockets.size === 0;
-
-    if (!userSockets) {
-        userSockets = new Set();
-        onlineUsers.set(userId, userSockets);
-    }
-
-    // Thêm socket hiện tại
     userSockets.add(socket.id);
 
-    // Gửi danh sách người dùng đang Online cho client vừa kết nối
-    socket.emit("online-users", Array.from(onlineUsers.keys()));
-
-    // Chỉ cập nhật và thông báo khi kết nối đầu tiên
     if (isFirstConnection) {
         await User.findByIdAndUpdate(userId, {
-            $set: {
-                isOnline: true,
-            },
+            $set: { isOnline: true },
         });
 
-        io.emit("user-online", {
-            userId,
+        // Thông báo cho các client có quyền xem
+        await broadcastPresence(userId, {
+            isOnline: true,
+            lastOnline: user.lastOnline ?? null,
         });
     }
+
+    // Gửi trạng thái được phép xem cho socket mới
+    await sendPresenceSnapshot(socket, userId);
 
     // Join các conversation của người dùng
     const conversationIds = await getUserConversationsForSocketIO(user._id);
@@ -72,9 +181,6 @@ io.on("connection", async (socket) => {
     socket.on("join-conversation", (conversationId) => {
         socket.join(conversationId);
     });
-
-    // Join room riêng của user
-    socket.join(userId);
 
     // Disconnect
     socket.on("disconnect", async () => {
@@ -109,8 +215,8 @@ io.on("connection", async (socket) => {
                     },
                 });
 
-                io.emit("user-offline", {
-                    userId,
+                await broadcastPresence(userId, {
+                    isOnline: false,
                     lastOnline: lastOnline.toISOString(),
                 });
             } catch (error) {

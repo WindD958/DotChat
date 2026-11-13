@@ -6,7 +6,6 @@ import { Separator } from "../ui/separator";
 import UserAvatar from "./UserAvatar";
 import StatusBadge from "./StatusBadge";
 import GroupChatAvatar from "./GroupChatAvatar";
-import { useSocketStore } from "@/stores/useSocketStore";
 import { Menu } from "lucide-react";
 import { Button } from "../ui/button";
 import UserStatus from "./UserStatus";
@@ -19,7 +18,6 @@ interface Props {
 const ChatWindowHeader = ({ chat, onToggle }: Props) => {
     const { conversations, activeConversationId } = useChatStore();
     const { user } = useAuthStore();
-    const { onlineUsers } = useSocketStore();
     const now = useCurrentTime();
     let otherUser;
 
@@ -45,7 +43,7 @@ const ChatWindowHeader = ({ chat, onToggle }: Props) => {
     }
 
     return (
-        <header className="sticky top-0 z-10 px-4 py-2 flex items-center bg-background">
+        <header className="sticky top-0 z-10 px-4 flex items-center bg-background">
             <div className="flex items-center gap-2 w-full">
                 <SidebarTrigger
                     size="icon-lg"
@@ -67,15 +65,7 @@ const ChatWindowHeader = ({ chat, onToggle }: Props) => {
                                         otherUser?.avatarUrl || undefined
                                     }
                                 />
-                                <StatusBadge
-                                    status={
-                                        onlineUsers.includes(
-                                            otherUser?.userId ?? "",
-                                        )
-                                            ? "online"
-                                            : "offline"
-                                    }
-                                />
+                                <StatusBadge userId={otherUser?.userId} />
                             </>
                         ) : (
                             <GroupChatAvatar

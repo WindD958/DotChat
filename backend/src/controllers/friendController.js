@@ -2,6 +2,7 @@ import Friend from "../models/Friend.js";
 import FriendRequest from "../models/FriendRequest.js";
 import User from "../models/User.js";
 import mongoose from "mongoose";
+import { canViewPresence } from "../services/presenceService.js";
 
 export const sendFriendRequest = async (req, res) => {
     try {
@@ -167,25 +168,45 @@ export const getAllFriend = async (req, res) => {
     try {
         const userId = req.user._id;
 
+        const viewer = await User.findById(userId).select(
+            "_id settings.privacy.hideActivityStatus",
+        );
+
         const friendships = await Friend.find({
             $or: [{ userA: userId }, { userB: userId }],
         })
             .populate(
                 "userA",
-                "_id displayName username avatarUrl isOnline lastOnline",
+                "_id displayName username avatarUrl isOnline lastOnline settings.privacy.hideActivityStatus",
             )
             .populate(
                 "userB",
-                "_id displayName username avatarUrl isOnline lastOnline",
+                "_id displayName username avatarUrl isOnline lastOnline settings.privacy.hideActivityStatus",
             );
 
         if (!friendships.length) {
             return res.status(200).json({ friends: [] });
         }
 
-        const friends = friendships.map((f) =>
-            f.userA._id.toString() === userId.toString() ? f.userB : f.userA,
-        );
+        const friends = friendships.map((f) => {
+            const friend =
+                f.userA._id.toString() === userId.toString()
+                    ? f.userB
+                    : f.userA;
+
+            // Kiểm tra hai bên có được phép xem trạng thái của nhau không
+            const canView = canViewPresence(viewer, friend);
+
+            // Không cho frontend nhận trạng thái nếu bị ẩn
+            return {
+                _id: friend._id,
+                displayName: friend.displayName,
+                username: friend.username,
+                avatarUrl: friend.avatarUrl,
+                isOnline: canView ? friend.isOnline : null,
+                lastOnline: canView ? friend.lastOnline : null,
+            };
+        });
 
         return res.status(200).json({ friends });
     } catch (error) {

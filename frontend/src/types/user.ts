@@ -6,9 +6,30 @@ export interface User {
     avatarUrl?: string;
     bio?: string;
     phone?: string;
+    isOnline?: boolean;
     lastOnline?: string | null;
     createdAt?: string;
     updatedAt?: string;
+}
+
+export interface UserSettings {
+    privacy: {
+        hideActivityStatus?: boolean;
+    };
+
+    notifications: {
+        messageNotifications: boolean;
+        soundEnabled: boolean;
+    };
+
+    chat: {
+        enterToSend: boolean;
+        messagePreview: boolean;
+    };
+
+    appearance: {
+        theme: "light" | "dark" | "system";
+    };
 }
 
 export interface Friend {
@@ -16,6 +37,7 @@ export interface Friend {
     username: string;
     displayName: string;
     avatarUrl?: string;
+    isOnline: boolean | null;
     lastOnline?: string | null;
 }
 

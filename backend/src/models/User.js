@@ -1,5 +1,46 @@
 import mongoose from "mongoose";
 
+const userSettingsSchema = new mongoose.Schema(
+    {
+        privacy: {
+            hideActivityStatus: {
+                type: Boolean,
+                default: false,
+            },
+        },
+
+        notifications: {
+            messageNotifications: {
+                type: Boolean,
+                default: true,
+            },
+        },
+
+        chat: {
+            enterToSend: {
+                type: Boolean,
+                default: true,
+            },
+
+            messagePreview: {
+                type: Boolean,
+                default: true,
+            },
+        },
+
+        appearance: {
+            theme: {
+                type: String,
+                enum: ["light", "dark", "system"],
+                default: "system",
+            },
+        },
+    },
+    {
+        _id: false,
+    },
+);
+
 const userSchema = new mongoose.Schema(
     {
         username: {
@@ -46,6 +87,10 @@ const userSchema = new mongoose.Schema(
         lastOnline: {
             type: Date,
             default: null,
+        },
+        settings: {
+            type: userSettingsSchema,
+            default: () => ({}),
         },
     },
     {

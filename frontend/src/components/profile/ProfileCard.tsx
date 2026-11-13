@@ -3,23 +3,24 @@ import { Card, CardContent } from "../ui/card";
 import UserAvatar from "../chat/UserAvatar";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
-import { useSocketStore } from "@/stores/useSocketStore";
 import AvatarUploader from "./AvatarUploader";
+import { usePresenceStore } from "@/stores/usePresenceStore";
 
 interface ProfileCardProps {
     user: User | null;
 }
 
 const ProfileCard = ({ user }: ProfileCardProps) => {
-    const { onlineUsers } = useSocketStore();
+    const userId = user?._id;
+    const presence = usePresenceStore((state) =>
+        userId ? state.presences[userId] : undefined,
+    );
 
     if (!user) return;
 
     if (!user.bio) {
         user.bio = "Người dùng chưa có bio.";
     }
-
-    const isOnline = onlineUsers.includes(user._id) ? true : false;
 
     return (
         <Card className="overflow-hidden p-0 h-52 bg-gradient-primary">
@@ -50,7 +51,7 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
                 <Badge
                     className={cn(
                         "flex items-center gap-1 capitalize",
-                        isOnline
+                        presence?.isOnline
                             ? "bg-green-100 text-green-700"
                             : "bg-slate-100 text-slate-700",
                     )}
@@ -58,12 +59,12 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
                     <div
                         className={cn(
                             "size-2 rounded-full",
-                            isOnline
+                            presence?.isOnline
                                 ? "bg-green-500 animate-pulse"
                                 : "bg-slate-500",
                         )}
                     />
-                    {isOnline ? "online" : "offline"}
+                    {presence?.isOnline ? "online" : "offline"}
                 </Badge>
             </CardContent>
         </Card>

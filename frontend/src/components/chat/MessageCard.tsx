@@ -60,15 +60,7 @@ const MessageCard = ({ convo }: { convo: Conversation }) => {
                                 name={otherUser.displayName ?? ""}
                                 avatarUrl={otherUser.avatarUrl ?? undefined}
                             />
-                            <StatusBadge
-                                status={
-                                    onlineUsers.includes(
-                                        otherUser?.userId ?? "",
-                                    )
-                                        ? "online"
-                                        : "offline"
-                                }
-                            />
+                            <StatusBadge userId={otherUser?.userId} />
                         </>
                     ) : (
                         <GroupChatAvatar
