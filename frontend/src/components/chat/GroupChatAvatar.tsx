@@ -5,12 +5,12 @@ import { cn } from "@/lib/utils";
 
 interface GroupChatAvatarProps {
     participants: Participant[];
-    type: "chat" | "mess";
+    type: "chat" | "mess" | "sidebar";
 }
 
 const GroupChatAvatar = ({ participants, type }: GroupChatAvatarProps) => {
     const avatars = [];
-    const limit = Math.min(participants.length, 2);
+    const limit = Math.min(participants.length, 3);
 
     for (let i = 0; i < limit; i++) {
         const member = participants[i];
@@ -33,6 +33,7 @@ const GroupChatAvatar = ({ participants, type }: GroupChatAvatarProps) => {
                     className={cn(
                         "flex items-center z-10 justify-center size-8 bg-muted ring-2 ring-background rounded-sm text-muted",
                         type === "chat" && "size-10",
+                        type === "sidebar" && "size-12",
                     )}
                 >
                     <Ellipsis className="size-4 text-muted-foreground" />

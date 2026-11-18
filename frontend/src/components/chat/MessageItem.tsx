@@ -1,8 +1,8 @@
 import { cn, formatMessageTime } from "@/lib/utils";
 import type { Conversation, Message, Participant } from "@/types/chat";
 import UserAvatar from "./UserAvatar";
-import { Badge } from "../ui/badge";
-import { CheckCheck, Eye } from "lucide-react";
+import { CheckCheck } from "lucide-react";
+import SeenByAvatar from "./SeenByAvatar";
 
 interface MessageItemProps {
     message: Message;
@@ -93,28 +93,20 @@ const MessageItem = ({
             {/* Seen | Delivered */}
             {message.isOwn &&
                 message._id === selectedConvo.lastMessage?._id && (
-                    <div className="flex justify-end mt-2 mr-9">
-                        <Badge
-                            variant="outline"
-                            className={cn(
-                                "text-xs px-1.5 py-0.5 h-4 border-0",
-                                lastMessageStatus === "seen"
-                                    ? "bg-primary/20 text-primary"
-                                    : "bg-muted text-muted-foreground",
-                            )}
-                        >
-                            {lastMessageStatus === "seen" ? (
-                                <>
-                                    <Eye />
-                                    Đã xem
-                                </>
-                            ) : (
-                                <>
-                                    <CheckCheck />
-                                    Đã gửi
-                                </>
-                            )}
-                        </Badge>
+                    <div className="flex justify-end items-center mt-1 mr-9 text-xs px-1.5 py-0.5 h-4 border-0 text-primary">
+                        {lastMessageStatus === "seen" ? (
+                            <>
+                                <SeenByAvatar
+                                    type="seenStatus"
+                                    seenByList={selectedConvo.seenBy}
+                                />
+                            </>
+                        ) : (
+                            <>
+                                <CheckCheck className="size-3.5 mr-1" />
+                                <span className="font-medium">Đã gửi</span>
+                            </>
+                        )}
                     </div>
                 )}
         </div>

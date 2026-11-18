@@ -100,7 +100,7 @@ const InfoSidebar = ({ onToggle, convo }: InfoSidebarProps) => {
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto beautiful-scrollbar">
                 {/* Profile */}
                 <div className="flex flex-col items-center px-5 pb-6 pt-7">
                     <div className="relative">
@@ -118,7 +118,7 @@ const InfoSidebar = ({ onToggle, convo }: InfoSidebarProps) => {
                         ) : (
                             <GroupChatAvatar
                                 participants={convo.participants}
-                                type="chat"
+                                type="sidebar"
                             />
                         )}
                     </div>

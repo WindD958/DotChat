@@ -7,11 +7,9 @@ import UserAvatar from "./UserAvatar";
 import StatusBadge from "./StatusBadge";
 import UnreadCountBadge from "./UnreadCountBadge";
 import GroupChatAvatar from "./GroupChatAvatar";
-import { useSocketStore } from "@/stores/useSocketStore";
 
 const MessageCard = ({ convo }: { convo: Conversation }) => {
     const { user } = useAuthStore();
-    const { onlineUsers } = useSocketStore();
     const {
         activeConversationId,
         setActiveConversation,

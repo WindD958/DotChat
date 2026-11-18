@@ -56,6 +56,7 @@ export const chatService = {
     },
 
     async markAsSeen(conversationId: string) {
+        console.log(conversationId);
         const res = await api.patch(`/conversations/${conversationId}/seen`);
         return res.data;
     },

@@ -189,6 +189,9 @@ export const markAsSeen = async (req, res) => {
     try {
         const { conversationId } = req.params;
         const userId = req.user._id.toString();
+        const displayName = req.user.displayName;
+        const avatarUrl = req.user.avatarUrl;
+        const id = req.user._id;
 
         const conversation = await Conversation.findById(conversationId).lean();
 
@@ -215,13 +218,21 @@ export const markAsSeen = async (req, res) => {
         const updated = await Conversation.findByIdAndUpdate(
             conversationId,
             {
-                $addToSet: { seenBy: userId },
+                $addToSet: {
+                    seenBy: userId,
+                },
                 $set: { [`unreadCounts.${userId}`]: 0 },
             },
             {
                 returnDocument: "after",
             },
         );
+
+        const newSeenBy = {
+            _id: userId,
+            displayName: displayName,
+            avatarUrl: avatarUrl,
+        };
 
         io.to(conversationId).emit("read-message", {
             conversation: updated,
@@ -233,6 +244,7 @@ export const markAsSeen = async (req, res) => {
                     _id: updated?.lastMessage.senderId,
                 },
             },
+            seenBy: newSeenBy,
         });
 
         return res.status(200).json({

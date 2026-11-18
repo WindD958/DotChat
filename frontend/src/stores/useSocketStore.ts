@@ -83,18 +83,26 @@ export const useSocketStore = create<SocketState>((set, get) => ({
         });
 
         // Read Message
-        socket.on("read-message", ({ conversation, lastMessage }) => {
+        socket.on("read-message", ({ conversation, lastMessage, seenBy }) => {
             useChatStore.setState((state) => ({
-                conversations: state.conversations.map((c) =>
-                    c._id === conversation._id
-                        ? {
-                              ...c,
-                              seenBy: conversation.seenBy,
-                              unreadCounts: conversation.unreadCounts,
-                              lastMessage,
-                          }
-                        : c,
-                ),
+                conversations: state.conversations.map((c) => {
+                    if (c._id !== conversation._id) return c;
+
+                    const seenByMap = new Map(
+                        c.seenBy.map((user) => [String(user._id), user]),
+                    );
+
+                    const userId = String(seenBy._id);
+
+                    seenByMap.set(userId, seenBy);
+
+                    return {
+                        ...c,
+                        seenBy: Array.from(seenByMap.values()),
+                        unreadCounts: conversation.unreadCounts,
+                        lastMessage,
+                    };
+                }),
             }));
         });
 
